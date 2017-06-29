@@ -51,3 +51,29 @@ AV.Cloud.afterSave('ForumComments', function(request) {
 	    console.log('comment done.');
 	});
 })
+/*
+AV.Cloud.beforeSave('ForumCommentReplies', function(request, response) {
+  var reply = request.object;
+  if (reply) {
+    var acl = new AV.ACL();
+    acl.setPublicReadAccess(true);
+    acl.setWriteAccess(reply.get('comment').id,true);
+
+    post.setACL(acl);
+
+    // 保存到数据库中
+    response.success();
+  } else {
+    // 不保存数据，并返回错误
+    response.error('未发现有效的对象；');
+  }
+});
+*/
+AV.Cloud.afterSave('ForumCommentReplies', function(request) {
+	var query = new AV.Query('ForumComments');
+	query.get(request.object.get('comment').id).then(function(model) {
+	    model.add('replies', request.object);
+	    model.save();
+	    console.log('add reply done.');
+	});
+})
