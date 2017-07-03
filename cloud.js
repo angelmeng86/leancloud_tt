@@ -103,7 +103,7 @@ AV.Cloud.afterSave('ForumCommentReplies', function(request) {
 	    	var query2 = new AV.Query('_Conversation');
 			query2.get('595503e58fd9c5005f250b01').then(function(model) {
 				model.send('NoticeMessage'
-				,'{\"_lctype\":2,\"_lctext\":\"刚刚回复了你的评论\",\"_lcattrs\":{\"type\":5,\"typeTitle\":\"您有一条通知\",\"fromId\":\"' + request.object.get('creater').id +'\",\"sid\":\"' + comment.get('post').id +'\",\"cid\":\"' + comment.id + '\"}}'
+				,'{\"_lctype\":2,\"_lctext\":\"刚刚回复了你的评论\",\"_lcattrs\":{\"type\":5,\"typeTitle\":\"您有一条通知\",\"fromId\":\"' + request.object.get('creater').id +'\",\"pid\":\"' + comment.get('post').id +'\",\"cid\":\"' + comment.id + '\"}}'
 				, {"toClients":[comment.get('creater').id]});
 
 			    console.log('send reply message.');
