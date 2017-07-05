@@ -134,7 +134,7 @@ AV.Cloud.afterUpdate('BusinessApply', function(request) {
   		detail.set("brief", request.object.get('brief'));
   		detail.save();
   		console.log('update detail done.');
-  	}
+  	});
   }
 });
 
