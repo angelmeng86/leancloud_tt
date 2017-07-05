@@ -112,6 +112,32 @@ AV.Cloud.afterSave('ForumCommentReplies', function(request) {
 	});
 })
 
+AV.Cloud.afterSave('UserStatus', function(request) {
+	if(request.object.get('category') == 1) {
+		//当商家发起活动推送时，查询关注者并发送通知
+		var query = new AV.Query('_Followee');
+		query.equalTo('user',request.object.get('creater')).find().then(function(results) {
+			console.log('query followee:' + results);
+		});
+	}
+})
+
+AV.Cloud.afterUpdate('BusinessApply', function(request) {
+  if(request.object.get('state') == 2) {
+  	//当申请商户审核通过后，把信息更新至UserDetail表中
+  	var query = new AV.Query('UserDetail');
+  	query.equalTo('userId',request.object.get('creater').id).first().then(function(detail) {
+  		detail.set("name", request.object.get('name'));
+  		detail.set("address", request.object.get('area'));
+  		detail.set("address2", request.object.get('address'));
+  		detail.set("phone", request.object.get('phone'));
+  		detail.set("brief", request.object.get('brief'));
+  		detail.save();
+  		console.log('update detail done.');
+  	}
+  }
+});
+
 AV.Cloud.onLogin(function(request) {
   if (request.object.get('active') == false) {
     // 如果是 error 回调，则用户无法登录（收到 401 响应）
