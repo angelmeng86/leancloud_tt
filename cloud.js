@@ -7,6 +7,17 @@ AV.Cloud.define('hello', function(request) {
   return 'Hello world!';
 });
 
+AV.Cloud.define('_messageReceived', function(request, response) {
+    var params = request.params;
+
+    console.log('fromPeer', params.content);
+    console.log('convId', params.content);
+    console.log('toPeers', params.content);
+    console.log('content', params.content);
+
+    response.success();
+})
+
 AV.Cloud.define('checkActivityPush', function(request) {
 	var query1 = new AV.Query('ActivityPushTemp');
 	query1.equalTo('state', 0).lessThanOrEqualTo('pushDate', new Date()).find().then(function(pushList) {
@@ -173,7 +184,7 @@ AV.Cloud.afterSave('ForumCommentReplies', function(request) {
 	    }
 	});
 })
-
+/*
 AV.Cloud.afterSave('UserStatus', function(request) {
 	if(request.object.get('category') == 2) {
 		var push = new AV.Object("ActivityPushTemp");
@@ -182,42 +193,13 @@ AV.Cloud.afterSave('UserStatus', function(request) {
 			statusId: request.object.id,
 		    pushTitle: request.object.get('pushTitle'),
 		    pushDate: request.object.get('pushDate')
-		  }).then(function(gameTurnAgain) {
+		  }).then(function(model) {
 		    // The save was successful.
 		    console.log('save push message.');
 		  });
-		 /*
-		//当商家发起活动推送时，查询关注者并发送通知
-		var query = new AV.Query('_Follower');
-		query.equalTo('user',request.object.get('creater')).find().then(function(results) {
-			console.log('query follower:' + results.length);
-			if(results.length > 0) {
-				var index;
-				var arr = new Array(results.length);
-				for(index in results) {
-					//console.log('followerId:' + results[index].get('follower').id);
-					arr[index] = results[index].get('follower').id;
-				}
-
-				//var str ='{\"_lctype\":2,\"_lctext\":\"' + request.object.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + request.object.get('pushTitle') +'\",\"fromId\":\"' + request.object.get('creater').id +'\",\"sid\":\"' + request.object.id + '\"}}';
-				//console.log('message:' + str);
-
-				var query2 = new AV.Query('_Conversation');
-				query2.get('595cfbe361ff4b006476c77c').then(function(model) {
-
-					model.send('NoticeMessage'
-						,'{\"_lctype\":2,\"_lctext\":\"' + request.object.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + request.object.get('pushTitle') +'\",\"fromId\":\"' + request.object.get('creater').id +'\",\"sid\":\"' + request.object.id + '\"}}'
-						, {"toClients": arr});
-
-				    console.log('send activity message.');
-				});
-				
-			}
-		});
-		*/
 	}
 })
-
+*/
 AV.Cloud.afterUpdate('BusinessApply', function(request) {
   if(request.object.get('state') == 1) {
   	//当申请商户审核通过后，把信息更新至UserDetail表中
