@@ -16,7 +16,6 @@ AV.Cloud.define('checkActivityPush', function(request) {
 			for(index in pushList) {
 				var push = pushList[index];
 				var type = push.get('type');
-
 				if(type == 1) {
 					//当商家发起活动推送时，查询关注者并发送通知
 					var creater = AV.Object.createWithoutData("_User", push.get('userId'));
@@ -55,10 +54,14 @@ AV.Cloud.define('checkActivityPush', function(request) {
 					});
 				}
 				else if(type == 2) {
-					model.broadcast('SystemMessage','{\"_lctype\":2,\"_lctext\":\"' + push.get('pushTitle') +'\",\"_lcattrs\":{\"typeTitle\":\"' + push.get('pushTitle') +'\",\"sid\":\"' + push.get('statusId') + '\"}}');
-					push.set("state", 1);
-					push.save();
-					console.log('send broadcast message.');
+					var query2 = new AV.Query('_Conversation');
+					query2.get('594f297da22b9d005918deaf').then(function(model) {
+
+						model.broadcast('SystemMessage','{\"_lctype\":2,\"_lctext\":\"' + push.get('pushTitle') +'\",\"_lcattrs\":{\"typeTitle\":\"' + push.get('pushTitle') +'\",\"sid\":\"' + push.get('statusId') + '\"}}');
+						push.set("state", 1);
+						push.save();
+						console.log('send broadcast message.');
+					});	
 				}
 			}
 		}
