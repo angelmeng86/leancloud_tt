@@ -10,9 +10,9 @@ AV.Cloud.define('hello', function(request) {
 AV.Cloud.define('checkActivityPush', function(request) {
 	var query1 = new AV.Query('ActivityPushTemp');
 	query1.equalTo('state', 0).lessThanOrEqualTo('pushDate', new Date()).find().then(function(pushList) {
-		console.log('push query:' + pushList.length);
 		if(pushList.length > 0) {
 			var index;
+			console.log('has push :' + pushList.length);
 			for(index in pushList) {
 				var push = pushList[index];
 				var type = push.get('type');
