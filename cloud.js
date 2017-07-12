@@ -15,11 +15,19 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     console.log('toPeers', params.toPeers);
     console.log('content', params.content);
 
-    if(params.convId == '5961aaaca46814d9c7a3762f') {
-    	console.log('drop message');
-    	response.success({"drop": true});
-    	return;
-    }
+    var query = new AV.Query('_Conversation');
+	query.get(params.convId).then(function(conv) {
+		console.log('m.length:' + conv.get('m').length);
+		if(conv.get('m').length == 2) {
+			var attr = conv.get('attr');
+			console.log('attr:' + attr[params.fromPeer]);
+			if(attr[params.fromPeer] == 1) {
+				console.log('drop message');
+    			response.success({"drop": true});
+    			return;
+			}
+		}
+	});	
 
     response.success();
 })
