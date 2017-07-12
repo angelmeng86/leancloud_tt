@@ -10,10 +10,16 @@ AV.Cloud.define('hello', function(request) {
 AV.Cloud.define('_messageReceived', function(request, response) {
     var params = request.params;
 
-    console.log('fromPeer', params.content);
-    console.log('convId', params.content);
-    console.log('toPeers', params.content);
+    console.log('fromPeer', params.fromPeer);
+    console.log('convId', params.convId);
+    console.log('toPeers', params.toPeers);
     console.log('content', params.content);
+
+    if(params.convId == '5961aaaca46814d9c7a3762f') {
+    	console.log('drop message');
+    	response.success({"drop": true});
+    	return;
+    }
 
     response.success();
 })
