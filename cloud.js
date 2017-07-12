@@ -8,48 +8,58 @@ AV.Cloud.define('hello', function(request) {
 });
 
 AV.Cloud.define('checkActivityPush', function(request) {
-	console.log('every minute click.');
 	var query1 = new AV.Query('ActivityPushTemp');
 	query1.equalTo('state', 0).lessThanOrEqualTo('pushDate', new Date()).find().then(function(pushList) {
+		console.log('push query:' + pushList.length);
 		if(pushList.length > 0) {
 			var index;
 			for(index in pushList) {
 				var push = pushList[index];
-				//当商家发起活动推送时，查询关注者并发送通知
-				var creater = AV.Object.createWithoutData("_User", push.get('userId'));
-				var query = new AV.Query('_Follower');
-				query.equalTo('user', creater).find().then(function(results) {
-					console.log('query follower:' + results.length);
-					if(results.length > 0) {
-						var index;
-						var arr = new Array(results.length);
-						for(index in results) {
-							//console.log('followerId:' + results[index].get('follower').id);
-							arr[index] = results[index].get('follower').id;
+				var type = push.get('type');
+
+				if(type == 1) {
+					//当商家发起活动推送时，查询关注者并发送通知
+					var creater = AV.Object.createWithoutData("_User", push.get('userId'));
+					var query = new AV.Query('_Follower');
+					query.equalTo('user', creater).find().then(function(results) {
+						console.log('query follower:' + results.length);
+						if(results.length > 0) {
+							var index;
+							var arr = new Array(results.length);
+							for(index in results) {
+								//console.log('followerId:' + results[index].get('follower').id);
+								arr[index] = results[index].get('follower').id;
+							}
+
+							//var str ='{\"_lctype\":2,\"_lctext\":\"' + request.object.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + request.object.get('pushTitle') +'\",\"fromId\":\"' + request.object.get('creater').id +'\",\"sid\":\"' + request.object.id + '\"}}';
+							//console.log('message:' + str);
+
+							var query2 = new AV.Query('_Conversation');
+							query2.get('595cfbe361ff4b006476c77c').then(function(model) {
+
+								model.send('NoticeMessage'
+									,'{\"_lctype\":2,\"_lctext\":\"' + push.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + push.get('pushTitle') +'\",\"fromId\":\"' + push.get('userId') +'\",\"sid\":\"' + push.get('statusId') + '\"}}'
+									, {"toClients": arr});
+
+								push.set("state", 1);
+							    push.save();
+							    console.log('send activity message.');
+							});
+							
 						}
-
-						//var str ='{\"_lctype\":2,\"_lctext\":\"' + request.object.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + request.object.get('pushTitle') +'\",\"fromId\":\"' + request.object.get('creater').id +'\",\"sid\":\"' + request.object.id + '\"}}';
-						//console.log('message:' + str);
-
-						var query2 = new AV.Query('_Conversation');
-						query2.get('595cfbe361ff4b006476c77c').then(function(model) {
-
-							model.send('NoticeMessage'
-								,'{\"_lctype\":2,\"_lctext\":\"' + push.get('pushTitle') +'\",\"_lcattrs\":{\"type\":6,\"typeTitle\":\"' + push.get('pushTitle') +'\",\"fromId\":\"' + push.get('userId') +'\",\"sid\":\"' + push.get('statusId') + '\"}}'
-								, {"toClients": arr});
-
+						else {
 							push.set("state", 1);
-						    push.save();
-						    console.log('send activity message.');
-						});
-						
-					}
-					else {
-						push.set("state", 1);
-						push.save();
-						console.log('nobody follower.');
-					}
-				});
+							push.save();
+							console.log('nobody follower.');
+						}
+					});
+				}
+				else if(type == 2) {
+					model.broadcast('SystemMessage','{\"_lctype\":2,\"_lctext\":\"' + push.get('pushTitle') +'\",\"_lcattrs\":{\"typeTitle\":\"' + push.get('pushTitle') +'\",\"sid\":\"' + push.get('statusId') + '\"}}');
+					push.set("state", 1);
+					push.save();
+					console.log('send broadcast message.');
+				}
 			}
 		}
 	});
