@@ -9,27 +9,26 @@ AV.Cloud.define('hello', function(request) {
 
 AV.Cloud.define('_messageReceived', function(request, response) {
     var params = request.params;
-
+    /*
     console.log('fromPeer', params.fromPeer);
     console.log('convId', params.convId);
     console.log('toPeers', params.toPeers);
     console.log('content', params.content);
-
+	*/
     var query = new AV.Query('_Conversation');
 	query.get(params.convId).then(function(conv) {
-		console.log('m.length:' + conv.get('m').length);
+		//判断是否为单人会话
 		if(conv.get('m').length == 2) {
 			var attr = conv.get('attr');
-			console.log('attr:' + attr[params.fromPeer]);
+			//判断自定义属性中发送者被屏蔽
 			if(attr[params.fromPeer] == 1) {
-				console.log('drop message');
+				console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
     			response.success({"drop": true});
     			return;
 			}
 		}
-	});	
-
-    response.success();
+		response.success();
+	});
 })
 
 AV.Cloud.define('checkActivityPush', function(request) {
