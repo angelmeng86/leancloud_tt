@@ -19,9 +19,13 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     query.equalTo('convId', params.convId);
     query.equalTo('userId', params.fromPeer);
     query.first().then(function (data) {
-    	console.log('data:' + data);
-    	console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
-    	response.success({"drop": true});
+		if (typeof(data) == "undefined") { 
+			response.success();
+		}
+		else {
+			console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
+    		response.success({"drop": true});
+		}
   	}, function (error) {
   		response.success();
   	});
