@@ -16,7 +16,10 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     console.log('content', params.content);
 	*/
     var query = new AV.Query('ConversationBlackList');
-    query.equalTo('convId', params.convId).equalTo('userId', params.fromPeer).first().then(function (data) {
+    query.equalTo('convId', params.convId);
+    query.equalTo('userId', params.fromPeer);
+    query.first().then(function (data) {
+    	console.log('data:' + data);
     	console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
     	response.success({"drop": true});
   	}, function (error) {
