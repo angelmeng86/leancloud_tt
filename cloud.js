@@ -15,20 +15,13 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     console.log('toPeers', params.toPeers);
     console.log('content', params.content);
 	*/
-    var query = new AV.Query('_Conversation');
-	query.get(params.convId).then(function(conv) {
-		//判断是否为单人会话
-		if(conv.get('m').length == 2) {
-			var attr = conv.get('attr');
-			//判断自定义属性中发送者被屏蔽
-			if(attr[params.fromPeer] == 1) {
-				console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
-    			response.success({"drop": true});
-    			return;
-			}
-		}
-		response.success();
-	});
+    var query = new AV.Query('ConversationBlackList');
+    query.equalTo('convId', params.convId).equalTo('userId', params.fromPeer).first().then(function (data) {
+    	console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
+    	response.success({"drop": true});
+  	}, function (error) {
+  		response.success();
+  	});
 })
 
 AV.Cloud.define('checkActivityPush', function(request) {
