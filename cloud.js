@@ -112,6 +112,11 @@ AV.Cloud.afterSave('UserStatusLikes', function(request) {
 	    status.save();
 	    console.log('like status done.');
 
+	    if(request.object.get('user').id == status.get('creater').id) {
+	    	console.log('myself like.');
+	    	return;
+	    }
+
 	    var query2 = new AV.Query('_Conversation');
 		query2.get('5955040cac502e006077817b').then(function(model) {
 			model.send('NoticeMessage'
@@ -130,11 +135,16 @@ AV.Cloud.afterSave('ForumPostsLikes', function(request) {
 	    post.save();
 	    console.log('like post done.');
 
+	    if(request.object.get('user').id == post.get('creater').id) {
+	    	console.log('myself like.');
+	    	return;
+	    }
+
 	    var query2 = new AV.Query('_Conversation');
 		query2.get('5955040cac502e006077817b').then(function(model) {
 			model.send('NoticeMessage'
 			,'{\"_lctype\":2,\"_lctext\":\"给你的帖子点了赞\",\"_lcattrs\":{\"type\":3,\"typeTitle\":\"您有一条通知\",\"fromId\":\"' + request.object.get('user').id +'\",\"pid\":\"' + request.object.get('post').id + '\"}}'
-			, {"toClients":[status.get('creater').id]});
+			, {"toClients":[post.get('creater').id]});
 
 		    console.log('send post message.');
 		});
@@ -147,6 +157,11 @@ AV.Cloud.afterSave('ForumComments', function(request) {
 	    post.increment('commentCount');
 	    post.save();
 	    console.log('comment done.');
+
+	    if(request.object.get('creater').id == post.get('creater').id) {
+	    	console.log('myself comment.');
+	    	return;
+	    }
 
 	    var query2 = new AV.Query('_Conversation');
 		query2.get('595503e58fd9c5005f250b01').then(function(model) {
