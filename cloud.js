@@ -245,7 +245,7 @@ AV.Cloud.afterUpdate('BusinessApply', function(request) {
 });
 
 AV.Cloud.onLogin(function(request) {
-	if(request.object.has('active')) {
+	if(request.object.get('mobilePhoneVerified') == true) {
 		if (request.object.get('active') == false) {
 	    // 如果是 error 回调，则用户无法登录（收到 401 响应）
 	    throw new AV.Cloud.Error('该用户已被禁用');
