@@ -34,18 +34,18 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     			response.success({"drop": true});
     		}
     		else {
+    			//屏蔽黑名单消息
     			var arr = params.toPeers;
     			for (var i = arr.length - 1; i >= 0; i--) {
     				for (var j = list.length - 1; j >= 0; j--) {
     					var bl = list[j];
     					if (arr[i] == bl.get('createrId')) {
-    						console.log('OYE ' + arr[i]);
     						arr.splice(i, 1);
     						break;
     					}
     				}
     			}
-				console.log('change message toPeers ' + params.toPeers + ' to ' + arr);
+				console.log('change message convId ' + params.convId + ' fromPeer ' + params.fromPeer + ' toPeers ' + arr);
     			response.success({"toPeers": arr});
     		}
     	}
