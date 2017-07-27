@@ -7,6 +7,15 @@ AV.Cloud.define('hello', function(request) {
   return 'Hello world!';
 });
 
+AV.Cloud.beforeSave('ConversationBlackList', function(request) {
+	var creater = request.object.get('creater');
+	if (creater) 
+	{
+		request.object.set('createrId', creater.id);
+		console.log('set createrId ' + creater.id);
+	}
+})
+
 AV.Cloud.define('_messageReceived', function(request, response) {
     var params = request.params;
     /*
@@ -16,16 +25,26 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     console.log('content', params.content);
 	*/
     var query = new AV.Query('ConversationBlackList');
-    query.equalTo('convId', params.convId);
+    //query.equalTo('convId', params.convId);
+    query.containedIn('creater', params.toPeers);
     query.equalTo('userId', params.fromPeer);
-    query.first().then(function (data) {
+    query.find().then(function (list) {
+    	if (list.length > 0) {
+    		console.log('T drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
+    		response.success({"drop": true});
+    	}
+    	else {
+    		response.success();
+    	}
+    	/*
 		if (typeof(data) == "undefined") { 
 			response.success();
 		}
 		else {
-			console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
+			console.log('T drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
     		response.success({"drop": true});
 		}
+		*/
   	}, function (error) {
   		response.success();
   	});
