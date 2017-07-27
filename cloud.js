@@ -25,26 +25,31 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     console.log('content', params.content);
 	*/
     var query = new AV.Query('ConversationBlackList');
-    //query.equalTo('convId', params.convId);
     query.containedIn('createrId', params.toPeers);
     query.equalTo('userId', params.fromPeer);
     query.find().then(function (list) {
     	if (list.length > 0) {
-    		console.log('T drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
-    		response.success({"drop": true});
+    		if (list.length == params.toPeers.length) {
+    			console.log('drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
+    			response.success({"drop": true});
+    		}
+    		else {
+    			var arr = params.toPeers;
+    			for (var i = arr.length - 1; i >= 0; i--) {
+    				for (var j = list.length - 1; j >= 0; j--) {
+    					if (arr[i] == list[j]) {
+    						arr.splice(i, 1);
+    						break;
+    					}
+    				}
+    			}
+				console.log('change message toPeers ' + params.toPeers + ' to ' + arr);
+    			response.success({"toPeers": arr});
+    		}
     	}
     	else {
     		response.success();
     	}
-    	/*
-		if (typeof(data) == "undefined") { 
-			response.success();
-		}
-		else {
-			console.log('T drop message convId ' + params.convId + ' fromPeer ' + params.fromPeer);
-    		response.success({"drop": true});
-		}
-		*/
   	}, function (error) {
   		response.success();
   	});
