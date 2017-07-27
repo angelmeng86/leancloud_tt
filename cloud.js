@@ -26,7 +26,7 @@ AV.Cloud.define('_messageReceived', function(request, response) {
 	*/
     var query = new AV.Query('ConversationBlackList');
     //query.equalTo('convId', params.convId);
-    query.containedIn('creater', params.toPeers);
+    query.containedIn('createrId', params.toPeers);
     query.equalTo('userId', params.fromPeer);
     query.find().then(function (list) {
     	if (list.length > 0) {
