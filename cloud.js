@@ -37,7 +37,8 @@ AV.Cloud.define('_messageReceived', function(request, response) {
     			var arr = params.toPeers;
     			for (var i = arr.length - 1; i >= 0; i--) {
     				for (var j = list.length - 1; j >= 0; j--) {
-    					if (arr[i] == list[j]) {
+    					var bl = list[j];
+    					if (arr[i] == bl.get('createrId')) {
     						console.log('OYE ' + arr[i]);
     						arr.splice(i, 1);
     						break;
