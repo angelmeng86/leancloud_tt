@@ -154,6 +154,38 @@ AV.Cloud.afterSave('UserStatusLikes', function(request) {
 	});
 })
 
+AV.Cloud.afterSave('UserStatusLikes', function(request) {
+	var query = new AV.Query('UserStatus');
+	query.get(request.object.get('status').id).then(function(status) {
+	    status.increment('praise');
+	    status.save();
+	    console.log('like status done.');
+
+	    if(request.object.get('user').id == status.get('creater').id) {
+	    	console.log('myself like.');
+	    	return;
+	    }
+
+	    var query2 = new AV.Query('_Conversation');
+		query2.get('5955040cac502e006077817b').then(function(model) {
+			model.send('NoticeMessage'
+			,'{\"_lctype\":2,\"_lctext\":\"给你的心情点了赞\",\"_lcattrs\":{\"type\":2,\"typeTitle\":\"您有一条通知\",\"fromId\":\"' + request.object.get('user').id +'\",\"sid\":\"' + request.object.get('status').id + '\"}}'
+			, {"toClients":[status.get('creater').id]});
+
+		    console.log('send status message.');
+		});
+	});
+})
+
+AV.Cloud.afterDelete('UserStatusLikes', function(request) {
+	var query = new AV.Query('UserStatus');
+	query.get(request.object.get('status').id).then(function(status) {
+	    status.increment('praise', -1);
+	    status.save();
+	    console.log('cancel like status.');
+	});
+})
+
 AV.Cloud.afterSave('ForumPostsLikes', function(request) {
 	var query = new AV.Query('ForumPosts');
 	query.get(request.object.get('post').id).then(function(post) {
@@ -174,6 +206,15 @@ AV.Cloud.afterSave('ForumPostsLikes', function(request) {
 
 		    console.log('send post message.');
 		});
+	});
+})
+
+AV.Cloud.afterDelete('ForumPostsLikes', function(request) {
+	var query = new AV.Query('ForumPosts');
+	query.get(request.object.get('post').id).then(function(post) {
+	    post.increment('praise', -1);
+	    post.save();
+	    console.log('cancel like post.');
 	});
 })
 
